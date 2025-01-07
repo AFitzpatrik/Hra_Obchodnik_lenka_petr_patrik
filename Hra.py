@@ -11,11 +11,11 @@ class Hra:
 
         nova_lokace = int(input('Kam chcete přejít?'))
         if nova_lokace == 1:
-            self.aktualni_lokace = 'Hradčany'
+            self.aktualni_lokace = self.lokace[0]
         elif nova_lokace == 2:
-            self.aktualni_lokace = 'Václavák'
+            self.aktualni_lokace = self.lokace[1]
         elif nova_lokace == 3:
-            self.aktualni_lokace = 'Holešovice'
+            self.aktualni_lokace = self.lokace[2]
 
 
 

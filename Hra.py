@@ -1,12 +1,14 @@
+
 import random
 
 
 class Osoba:
     def __init__(self):
         self.pocet_predmetu = 0
-        self.penez = 100
-       # self.kabat = False
-       # self.batoh = False
+        self.muzu_koupit = 2
+        self.penez = 500
+        self.kabat = False
+        self.batoh = False
         self.nakup_kos = {}
 
 
@@ -17,19 +19,39 @@ class Predmet:
         self.max_cena = max_cena
         self.nazev = nazev
 
-    def __str__(self):
+    def __repr__(self):
         return f"{self.nazev} = {self.cena}"
+    #def __str__(self):
+       # return f"{self.nazev} = {self.cena}"
 
 
 class Lokace:
-    def __init__(self, misto, ut_cena, med_cena, p_cena):
+    def __init__(self, misto):
         self.misto = misto
-        self.utopenec = Predmet("Utopenec", ut_cena, 50, 100)
-        self.med = Predmet("Med", med_cena, 100, 200)
-        self.palava = Predmet("Láhev pálavy", p_cena, 200, 500)
-        self.predmety = {"utopenec": self.utopenec,
-                         "med": self.med,
-                         "palava": self.palava}
+        if misto == "Hradčany":
+            self.utopenec = Predmet("Utopenec", 60, 50, 100)
+            self.med = Predmet("Med", 100, 100, 200)
+            self.palava = Predmet("Láhev pálavy", 250, 200, 500)
+        elif misto == "Václavák":
+            self.utopenec = Predmet("Utopenec", 75, 50, 100)
+            self.med = Predmet("Med", 150, 100, 200)
+            self.palava = Predmet("Láhev pálavy", 350, 200, 500)
+        elif misto == "Holešovice":
+            self.utopenec = Predmet("Utopenec", 90, 50, 100)
+            self.med = Predmet("Med", 180, 100, 200)
+            self.palava = Predmet("Láhev pálavy", 450, 200, 500)
+        elif misto == "Večerka":
+            self.kabat = Predmet("Kabát", 150, 150, 150)
+            self.batoh = Predmet("Batoh", 400, 400, 400)
+        if misto == "Večerka":
+            self.predmety = {"kabat": self.kabat,
+                             "batoh": self.batoh
+                             }
+        else:
+            self.predmety = {"utopenec": self.utopenec,
+                             "med": self.med,
+                             "palava": self.palava
+                            }
 
     def vypis_predmety_akce(self):
         print("Dostupne predmety:")
@@ -46,11 +68,26 @@ class Lokace:
             if predmet.min_cena <= (predmet.cena + cena_zmenena_o) <= predmet.max_cena:
                 predmet.cena = predmet.cena + cena_zmenena_o
 
+    def nakup_kabat_batoh(self, vec: str,osoba: Osoba, predmety: dict[str:Predmet]):
+        if predmety.get(vec).cena > osoba.penez:
+            print(f"Nemas dostatek penez. "
+                  f"{vec} stoji {predmety.get(vec).cena} "
+                  f"a ty mas {osoba.penez} Kc")
+        else:
+            if vec == "kabat":
+                osoba.kabat = True
+                osoba.muzu_koupit += 2
+            elif vec == "batoh":
+                osoba.batoh = True
+                osoba.muzu_koupit += 3
+
     def nakup(self, vec: str, osoba: Osoba, predmety: dict[str:Predmet]):
         if predmety.get(vec).cena > osoba.penez:
             print(f"Nemas dostatek penez. "
                   f"{vec} stoji {predmety.get(vec).cena} "
                   f"a ty mas {osoba.penez} Kc")
+        elif osoba.pocet_predmetu >= osoba.muzu_koupit:
+            print("Nelze koupit další předmět")
         else:
             pocet = osoba.nakup_kos.get(vec)
             if pocet:
@@ -72,10 +109,11 @@ class Lokace:
 
 class Hra:
     def __init__(self):
-        self.hradcany = Lokace('Hradčany', 50, 100, 200)
-        self.vaclavak = Lokace('Václavák', 75, 150, 300)
-        self.holesovice = Lokace('Holešovice', 85, 175, 400)
-        self.lokace = [self.hradcany, self.vaclavak, self.holesovice]
+        self.hradcany = Lokace('Hradčany')
+        self.vaclavak = Lokace('Václavák')
+        self.holesovice = Lokace('Holešovice')
+        self.vecerka = Lokace("Večerka")
+        self.lokace = [self.hradcany, self.vaclavak, self.holesovice, self.vecerka]
         self.aktualni_lokace = self.lokace[0]
         self.dny = 1
 
@@ -83,7 +121,8 @@ class Hra:
         print("""Dostupné lokace:
 1- Hradčany
 2- Václavák
-3- Holešovice""")
+3- Holešovice
+4- Večerka""")
         print(20 * "_")
         nova_lokace = int(input('Kam chcete přejít? '))
         if nova_lokace == 1:
@@ -92,6 +131,8 @@ class Hra:
             self.aktualni_lokace = self.lokace[1]
         elif nova_lokace == 3:
             self.aktualni_lokace = self.lokace[2]
+        elif nova_lokace == 4:
+            self.aktualni_lokace = self.lokace[3]
         self.aktualni_lokace.zmen_ceny(self.aktualni_lokace.predmety)
         self.dny += 1
 
@@ -106,7 +147,11 @@ class Hra:
                                             self.aktualni_lokace.predmety)
             elif akce == 2:
                 vec = input("Co chces koupit? ")
-                self.aktualni_lokace.nakup(vec, osoba,
+                if self.aktualni_lokace.misto == 'Večerka':
+                    self.aktualni_lokace.nakup_kabat_batoh(vec, osoba,
+                                               self.aktualni_lokace.predmety)
+                else:
+                    self.aktualni_lokace.nakup(vec, osoba,
                                            self.aktualni_lokace.predmety)
             elif akce == 3:
                 konec = True
@@ -124,19 +169,6 @@ if __name__ == "__main__":
         hra.nakup_prodej(osoba)
     print(20 * "_")
     print(f"po 14 dnech mas na uctu {osoba.penez} kc")
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

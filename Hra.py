@@ -20,7 +20,18 @@ class Hra:
 3- Holešovice
 4- Večerka""")
         print(20 * "_")
-        nova_lokace = int(input('Kam chcete přejít? '))
+        konec = False
+        # nova_lokace = 1
+        while not konec:
+            try:
+                nova_lokace = int(input('Kam chcete přejít? '))
+            except ValueError:
+                print("zadejte lokaci jako cislo")
+                continue
+            except:
+                continue
+            else:
+                konec = True
         if nova_lokace == 1:
             self.aktualni_lokace = self.lokace[0]
         elif nova_lokace == 2:
@@ -36,15 +47,33 @@ class Hra:
         self.aktualni_lokace.vypis_predmety_akce()
         konec = False
         while not konec:
-            akce = int(input("Vyber akci: "))
+            try:
+                akce = int(input("Vyber akci: "))
+            except ValueError as e:
+                print(e)
+                continue
             if akce == 1:
-                vec = input("Co chces prodat? ")
+                konec = False
+                while not konec:
+                    try:
+                        vec = input("Co chces prodat? ")
+                    except ValueError:
+                        continue
+                    else:
+                        break
                 if self.aktualni_lokace.misto == 'Večerka':
                     osoba.prodej_kabat_batoh(vec, self.aktualni_lokace.predmety)
                 else:
                     osoba.prodej_zbozi(vec, self.aktualni_lokace.predmety)
             elif akce == 2:
-                vec = input("Co chces koupit? ")
+                konec = False
+                while not konec:
+                    try:
+                        vec = input("Co chces koupit? ")
+                    except ValueError:
+                        continue
+                    else:
+                        break
                 if self.aktualni_lokace.misto == 'Večerka':
                     osoba.nakup_kabat_batoh(vec, self.aktualni_lokace.predmety)
                 else:
@@ -67,8 +96,11 @@ if __name__ == "__main__":
     print(f"po 14 dnech mas na uctu {osoba.penez} kc")
     jmeno = input("Zadej jmeno: ")
     veta = f"Hrac {jmeno} ma na konci hry na uctu {osoba.penez} Kc"
-    with open("highscores.txt", "w", encoding="utf-8") as f:
-        f.write(veta)
-    with open("highscores.txt", "r", encoding="utf-8") as f:
-        obsah_souboru = f.read()
-        print(obsah_souboru)
+    try:
+        with open("highscores.txt", "w", encoding="utf-8") as f:
+            f.write(veta)
+        with open("highscores.txt", "r", encoding="utf-8") as f:
+            obsah_souboru = f.read()
+            print(obsah_souboru)
+    except Exception as e:
+        print(e)
